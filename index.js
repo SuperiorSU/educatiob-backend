@@ -7,6 +7,8 @@ app = express()
 app.use(cors());
 app.use(express.json());
 
+const route = require('./routes/routers');
+app.use('/api/v1',route)
 const dbConnect = require('./config/database');
 dbConnect()
 
