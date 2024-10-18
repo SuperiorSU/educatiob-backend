@@ -20,7 +20,11 @@ const adminSchema = new mongoose.Schema({
     profileImg:{
         type: String,
         
-    },   
+    },
+    role:{
+        type:String,
+        default: 'admin'
+    }   
 })
 
 module.exports = mongoose.model('adminSchema',adminSchema );

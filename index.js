@@ -4,8 +4,14 @@ require('dotenv').config()
 
 app = express()
 
-app.use(cors());
+app.use(cors({
+    credentials: true
+}));
 app.use(express.json());
+
+const cookieParser = require('cookie-parser')
+app.use(cookieParser())
+
 
 const route = require('./routes/routers');
 app.use('/api/v1',route)

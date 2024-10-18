@@ -33,6 +33,7 @@ exports.studentSignUp = async (req, res) => {
         email,
         password: hashedPassword,
         city,
+        role: "student",
         dob,
         address,
         standard
@@ -92,3 +93,4 @@ exports.studentSignUp = async (req, res) => {
       });
     }
   };
+

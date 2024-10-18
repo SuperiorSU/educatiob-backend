@@ -37,7 +37,15 @@ const teacherSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    
+    status:{
+        type: String,
+        default: 'active',
+        enum: ['active', 'inactive']
+    },
+    role:{
+        type: String,
+        default: 'teacher'
+    }
 },{timestamps:true})
 
 module.exports = mongoose.model('teacherSchema',teacherSchema );
