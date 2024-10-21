@@ -8,7 +8,7 @@ require('dotenv').config();
 exports.teacherSignUp = async (req, res) => {
   try {
     // get data
-    const { name, email, password, dob, specialization, address } = req.body;
+    const { name, email, password, dob, specialization,profileImg, address } = req.body;
     // check if teacher already exist
     const existingteacherSchema = await teacherSchema.findOne({ email });
     if (existingteacherSchema) {
@@ -34,10 +34,11 @@ exports.teacherSignUp = async (req, res) => {
       name,
       email,
       specialization,
+      profileImg,
       password: hashedPassword,
       dob,
       address,
-      role: "teacher",
+   
     });
 
     return res.status(200).json({
@@ -52,12 +53,12 @@ exports.teacherSignUp = async (req, res) => {
     });
   }
 };
-
-
 exports.teacherLogin = async (req, res) => {
   try {
-    // get data
+    // Get data from request body
     const { email, password } = req.body;
+
+    // Ensure email and password are provided
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -65,7 +66,7 @@ exports.teacherLogin = async (req, res) => {
       });
     }
 
-    // check if the teacher is available
+    // Check if the teacher exists in the database
     let teacher = await teacherSchema.findOne({ email });
     if (!teacher) {
       return res.status(401).json({
@@ -74,50 +75,50 @@ exports.teacherLogin = async (req, res) => {
       });
     }
 
-    // check if the password is valid
-    if (await bcrypt.compare(password, teacher.password)) {
-      // Prepare the payload for JWT token
-      const payload = {
-        email: teacher.email,
-        id: teacher._id,
-        role: teacher.role,
-      };
-
-      // Generate the JWT token
-      const token = jwt.sign(payload, process.env.JWT_SECRET, {
-        expiresIn: "2h", // Token valid for 2 hours
-      });
-
-      // Remove the password from the teacher object before sending it to the client
-      teacher = teacher.toObject();
-
-      teacher.token = token;
-      teacher.password = undefined;
-
-      // Create cookie options
-      const options = {
-        expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days expiration
-        httpOnly: true, // Cookie accessible only by the web server
-      };
-
-      // Set the token in the cookie and respond with the teacher details and token
-      res.cookie("token", token, options).status(200).json({
-        success: true,
-        token,
-        teacher,
-        message: "Teacher logged in successfully",
-      });
-    } else {
+    // Verify the password using bcrypt
+    const isPasswordValid = await bcrypt.compare(password, teacher.password);
+    if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
         message: "Invalid password",
       });
     }
+
+    // Prepare the payload for the JWT token
+    const payload = {
+      email: teacher.email,
+      id: teacher._id,
+      role: teacher.role,
+    };
+
+    // Generate JWT token
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "2h", // Token valid for 2 hours
+    });
+
+    // Remove the password from the teacher object before sending it to the client
+    teacher = teacher.toObject();
+    teacher.token = token;
+    teacher.password = undefined;
+
+    // Create cookie options
+    const options = {
+      expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // Cookie valid for 3 days
+      httpOnly: true, // Make the cookie accessible only by the web server
+    };
+
+    // Set the token in the cookie and respond with teacher details and token
+    res.cookie("token", token, options).status(200).json({
+      success: true,
+      token,
+      teacher,
+      message: "Teacher logged in successfully",
+    });
   } catch (err) {
-    console.log(err);
+    console.error("Error during teacher login:", err);
     return res.status(500).json({
       success: false,
-      message: "Login failed",
+      message: "Login failed, please try again",
     });
   }
 };

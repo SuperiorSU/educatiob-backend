@@ -46,7 +46,10 @@ const studentSchema = new mongoose.Schema({
     role:{
         type: String,
         default: 'student'
-    }
+    },
+    token: {
+        type: String,
+    },
     
 },{timestamps:true})
 

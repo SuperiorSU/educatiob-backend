@@ -27,7 +27,9 @@ const teacherSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    
+    token: {
+        type: String,
+    },
     specialization:{
         type:String,
         required: true,
@@ -44,7 +46,7 @@ const teacherSchema = new mongoose.Schema({
     },
     role:{
         type: String,
-        default: 'teacher'
+        default: "teacher"
     }
 },{timestamps:true})
 
